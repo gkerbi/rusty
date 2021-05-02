@@ -17,6 +17,7 @@
 //! [`ST`]: https://en.wikipedia.org/wiki/Structured_text
 //! [`IEC61131-3`]: https://en.wikipedia.org/wiki/IEC_61131-3
 //! [`IR`]: https://llvm.org/docs/LangRef.html
+use glob::glob;
 use rusty::{
     cli::{parse_parameters, CompileParameters, ParameterError},
     compile_error::CompileError,
@@ -34,10 +35,33 @@ fn main() {
     }
 }
 
+fn read_contents(input: &str) -> Result<String, String> {
+    let paths =
+        glob(input).map_err(|e| format!("Failed to read glob pattern: {}, ({})", input, e))?;
+
+    let contents: Result<Vec<String>, String>  = paths
+        .map(read_content)
+        .map(|p| p.map(|(_, content)| content))
+        .collect();
+
+    Ok(contents?.join("\n"))
+}
+
+fn read_content(path_buf: Result<std::path::PathBuf, glob::GlobError>) -> Result<(String, String), String> {
+    path_buf
+        .map_err(|e| format!("Invalid Path: {}", e))
+        .map(|p| p.to_string_lossy().to_string())
+        .and_then(|p| {
+            fs::read_to_string(p.as_str())
+                .map(|content| (p.to_string(), content))
+                .map_err(|e| format!("Cannot read file {}: {}", p, e))
+        })
+}
+
 fn main_compile(parameters: CompileParameters) {
     let file_path = parameters.input.as_str();
-    let contents = fs::read_to_string(parameters.input.as_str())
-        .unwrap_or_else(|_| panic!("Cannot read input file {}", parameters.input.as_str()));
+
+    let contents = read_contents(file_path).unwrap();
 
     if parameters.output_bit_code {
         compile_to_bitcode(file_path, contents, parameters.output.as_str()).unwrap();

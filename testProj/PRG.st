@@ -1,0 +1,4 @@
+PROGRAM Foo
+	foo();
+
+END_PROGRAM

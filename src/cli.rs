@@ -13,9 +13,6 @@ pub fn parse_parameters(args: Vec<String>) -> Result<CompileParameters, Paramete
         about = "IEC61131-3 Structured Text compiler powered by Rust & LLVM "
     )]
 pub struct CompileParameters {
-    #[structopt(name = "input-file", help = "Read input from <input-file>")]
-    pub input: String,
-
     #[structopt(
         short,
         long,
@@ -62,6 +59,9 @@ pub struct CompileParameters {
         help = "A target-tripple supported by LLVM"
     )]
     pub target: Option<String>,
+
+    #[structopt(name = "input-file", help = "Read XXX input from <input-file>, may be a glob expression like 'src/**/*'")]
+    pub input: String,
 }
 
 #[cfg(test)]

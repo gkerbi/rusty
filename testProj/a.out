@@ -1,0 +1,34 @@
+; ModuleID = 'main'
+source_filename = "main"
+
+%Foo_interface = type {}
+%foo_interface = type {}
+
+@Foo_instance = global %Foo_interface zeroinitializer
+
+define i16 @foo(%foo_interface* %0) {
+entry:
+  %foo = alloca i16, align 2
+  store i16 7, i16* %foo, align 2
+  %foo_ret = load i16, i16* %foo, align 2
+  ret i16 %foo_ret
+}
+
+define void @Foo(%Foo_interface* %0) {
+entry:
+  %foo_instance = alloca %foo_interface, align 8
+  br label %input
+
+input:                                            ; preds = %entry
+  br label %call
+
+call:                                             ; preds = %input
+  %call1 = call i16 @foo(%foo_interface* %foo_instance)
+  br label %output
+
+output:                                           ; preds = %call
+  br label %continue
+
+continue:                                         ; preds = %output
+  ret void
+}

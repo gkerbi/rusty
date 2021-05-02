@@ -1,0 +1,3 @@
+FUNCTION foo: INT 
+    foo := 7;
+END_FUNCTION
